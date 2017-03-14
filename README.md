@@ -15,7 +15,7 @@ After the import, the Eclipse project explorer looks like the picture below.
 
 ![alt text](https://github.com/kkdt/gradle-java-multiprojects/blob/master/img/screenshot1.png "Eclipse import Gradle project")
 
-There were a couple of developers (myself included) who used the more lightweight, classic Eclipse that had minimum plugins. The Gradle plugin for Eclipse IDE was not available for us. This was a personal preference. In addition, we also preferred the single-project view in Eclipse - if the baseline checkout was a single baseline regardless of whether or not it is comprised of a single project or multiple projects, we like the IDE to organize the checkout as a single project (see screenshot below).
+There were a couple of developers (myself included) who used the more lightweight, classic Eclipse that had minimum plugins. The Gradle plugin for Eclipse IDE was not available for us. This was a personal preference. In addition, we also preferred the single-project view in Eclipse - if the baseline checkout was a single baseline regardless of whether or not it is comprised of a single project or multiple projects, we like the IDE to organize the checkout as a single project (see screenshot below). In order to achieve this, we had to manually add sources and libraries within Eclipse.
 
 ![alt text](https://github.com/kkdt/gradle-java-multiprojects/blob/master/img/screenshot2.png "Eclipse single-project import")
 
@@ -26,3 +26,5 @@ The following steps highlight how to configure the Gralde Eclipse Plugin to buil
 1. Define a new configuration in Gradle to store each subproject's Java `sourceSets`.
 2. Define a new configuration in Gradle to store each subproject's library dependencies.
 3. Use the `eclipse` closure to process the new configurations and add new sources and library files.
+
+This was never committed to my actual work because I had already left the program when I finished this task; however, the effort was not wasted because I apply this build file to all the projects I do on my personal time.

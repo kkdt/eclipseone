@@ -29,7 +29,11 @@ apply plugin : 'java'
  * when building eclipse artifacts.
  */
 repositories {
-   mavenCentral() 
+   mavenCentral()
+}
+
+ext {
+   localLib = project.projectDir.path + File.separator + 'lib'
 }
 
 /**
@@ -41,16 +45,16 @@ subprojects {
    version = '1.0'
 
    repositories {
-      mavenCentral() 
+      mavenCentral()
    }
 
-   // Define eclipse-specific configurations so that root project knows to 
+   // Define eclipse-specific configurations so that root project knows to
    // process them during eclipse plugin tasks
    configurations {
       eclipseLibs {
          description 'All library dependencies for subproject'
       }
-      
+
       eclipseSources {
          description 'All source directories for subproject'
       }
@@ -73,6 +77,22 @@ subprojects {
          println project.name + ' ' + project.configurations.testCompile.files.collect()
       }
    }
+   
+   task stage(type: Copy, description: 'Stage only runtime library dependencies') {
+      into rootProject.localLib
+      from configurations.runtime
+   }
+   
+   task stageAll(type: Copy, description: 'Stage testCompile library dependencies') {
+      into rootProject.localLib
+      from configurations.testCompile
+   }
+   
+   task cleanAll(description: 'Clean all artifacts created by this project build', dependsOn: ['clean']) {
+      doLast {
+         delete localLib
+      }
+   }
 }
 
 project(':api') {
@@ -87,7 +107,7 @@ project(':api') {
 project(':services:personService') {
    dependencies {
       compile project(':shared'), project(':api')
-      
+
       // this dependency was added as an example
       compile 'com.amazonaws:aws-lambda-java-core:1.1.0'
    }
@@ -135,7 +155,7 @@ eclipse {
 /**
  * All library dependencies for root project, excluding jar artifacts that each
  * subproject builds.
- * 
+ *
  * @return a set of file(s) to library dependencies.
  */
 def allLibs() {
