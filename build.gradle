@@ -68,7 +68,7 @@ subprojects {
 
       // gather up all source files for each subproject
       eclipseSources files(sourceSets.collect().collect {
-         it.java.srcDirs
+         it.java.srcDirs + it.resources.srcDirs
       })
    }
 
@@ -130,8 +130,10 @@ eclipse {
             project.plugins.hasPlugin('java')
          }.collect { project ->
             project.configurations.eclipseSources.each {
-               def src = new org.gradle.plugins.ide.eclipse.model.SourceFolder(rootProject.relativePath(it.absolutePath), null)
-               classpath.entries += src
+               if(file(it).exists()) {
+                  def src = new org.gradle.plugins.ide.eclipse.model.SourceFolder(rootProject.relativePath(it.absolutePath), null)
+                  classpath.entries += src
+               }
             }
          }
 
