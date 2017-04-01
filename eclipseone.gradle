@@ -1,0 +1,123 @@
+/**
+ * MIT License
+ * Copyright (c) 2017 kkdt
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/**
+ * Step 1: Configuration of all projects
+ * - Apply the eclipse plugin
+ * - Declare 'eclipseLibs' and 'eclipseSources' configurations
+ * - Set 'eclipseLibs' and 'eclipseSources' for all java projects
+ */
+allprojects { p ->
+   if(!p.plugins.hasPlugin('eclipse')) {
+      println 'Applying eclipse plugin to ' + p
+      apply plugin : 'eclipse'
+   }
+   
+   // Define eclipse-specific configurations so that root project knows to
+   // process them during eclipse plugin tasks
+   configurations {
+      eclipseLibs {
+         description 'All library dependencies for each project'
+      }
+
+      eclipseSources {
+         description 'All source directories for each project'
+      }
+   }
+
+   if(p.plugins.hasPlugin('java')) {
+      println 'Configuring eclipseLibs and eclipseSources for ' + p
+      dependencies {
+         // include not only compile but also test classpath for eclipse
+         eclipseLibs configurations.testCompileClasspath
+
+         // gather up all source files for each subproject
+         eclipseSources files(sourceSets.collect().collect {
+            it.java.srcDirs + it.resources.srcDirs
+         })
+      }
+   }
+}
+
+/**
+ * Step 2: Override 'eclipseProject'
+ * - All subprojects will remove their respective eclipse artifacts because the
+ * root project will take care of the single-project view
+ */
+subprojects { p ->
+   eclipseProject.doLast {
+      println 'Removing subproject eclipse artifacts ' + p
+      delete '.classpath'
+      delete '.project'
+   }
+}
+
+/**
+ * Step 3: rootProject configuration
+ * - Gather up all eclipseSources and eclipseLibs configurations and build the
+ * classpath and project artifacts
+ */
+if(!project.plugins.hasPlugin('java')) {
+   println 'Configuring java for ' + project
+   apply plugin : 'java'
+}
+
+println 'Building eclipse artifacts at ' + project
+eclipse {
+   classpath {
+      file.whenMerged { classpath ->
+
+         // subproject jar files will be ignored
+         def archives = allprojects.findAll { project ->
+            project.plugins.hasPlugin('java')
+         }.collect { project ->
+            project.jar.archivePath
+         }.collect() as Set
+
+         allprojects.findAll { project ->
+            project.plugins.hasPlugin('java')
+         }.collect { project ->
+            project.configurations.eclipseSources.each {
+               if(file(it).exists()) {
+                  def src = new org.gradle.plugins.ide.eclipse.model.SourceFolder(rootProject.relativePath(it.absolutePath), null)
+                  classpath.entries += src
+               }
+            }
+         }
+
+         allprojects.findAll { project ->
+            project.plugins.hasPlugin('java')
+         }.collect { project ->
+            project.configurations.eclipseLibs.each {
+               def fileRef = fileReference(it)
+               def lib = new org.gradle.plugins.ide.eclipse.model.Library(fileRef)
+               lib.exported = true
+
+               if(!classpath.entries.contains(lib) && !archives.contains(fileRef.file)) {
+                  classpath.entries += lib
+               }
+            }
+         }
+      }
+   }
+}

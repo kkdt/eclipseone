@@ -1,10 +1,21 @@
-> Original project exported from a personal subversion server into a git repository, and pushed to Github. This is intended to be "notes to myself" because I have trouble remembering what I did the previous day...
-
-> The source files in this project pulled from the [Gradle 3.3 Release](https://services.gradle.org/distributions) located at `${GRADLE_HOME}/samples/userguide/multiproject/dependencies/java` with a modified build file used in another project of mine. The original `build.gradle` was from Gradle 2.2.1 version. The work here may be obsolete but I wanted to push it out to Github anyway as I still use this as a template for all the builds I use at home.
-
 # gradle-java-multiprojects
 
-This project uses the [Eclipse Plugin](https://docs.gradle.org/current/userguide/eclipse_plugin.html) to configure a multi-project Gradle build as a single-project view in the Eclipse IDE, without the use of the Eclipse IDE Gradle Plugin.
+This project uses the [Eclipse Plugin](https://docs.gradle.org/current/userguide/eclipse_plugin.html) to configure a multi-project Gradle build as a single-project view in the Eclipse IDE, without the use of the Eclipse Gradle Plugin.
+
+## Quick Start
+
+Add an include to `eclipseone.gradle` to the **end** of your root project's build file.
+
+```java
+// make sure this goes at the end of your root project build.gradle
+include from : '/path/to/eclipseone.gradle'
+```
+
+Then, execute `gradle cleanEclipse eclispe` at your root project.
+
+In addition to using this for other various projects of mine, I also tested this using an example from [Gradle 3.3 Release](https://services.gradle.org/distributions) located at `${GRADLE_HOME}/samples/userguide/multiproject/dependencies/java` with a modified build file used in another project of mine. The original `build.gradle` was from Gradle 2.2.1 version. The work here may be obsolete but I wanted to push it out to Github anyway as I still use this as a template for all the builds I use at home.
+
+## Background
 
 About 4-5 years ago, I was a developer on a program whose code baseline was a multi-project Gradle build. Most developers on the program used Eclipse bundled with the Gradle plugin. The Gradle plugin for Eclipse IDE was great. For most developers, loading the project's codebase was a two-step process:
 
@@ -28,3 +39,5 @@ The following steps highlight how to configure the Gralde Eclipse Plugin to buil
 3. Use the `eclipse` closure to process the new configurations and add new sources and library files.
 
 This was never committed to my actual work because I had already left the program when I finished this task; however, the effort was not wasted because I apply this build file to all the projects I do on my personal time.
+
+> Original project exported from a personal subversion server into a git repository, and pushed to Github.
