@@ -31,6 +31,12 @@ allprojects { p ->
    if(!p.plugins.hasPlugin('eclipse')) {
       println 'Applying eclipse plugin to ' + p
       apply plugin : 'eclipse'
+      
+      eclipse {
+         classpath {
+            downloadSources=false
+         }
+      }
    }
    
    // Define eclipse-specific configurations so that root project knows to
@@ -100,7 +106,9 @@ eclipse {
             project.configurations.eclipseSources.each {
                if(file(it).exists()) {
                   def src = new org.gradle.plugins.ide.eclipse.model.SourceFolder(rootProject.relativePath(it.absolutePath), null)
-                  classpath.entries += src
+                  if(!classpath.entries.contains(src)) {
+                     classpath.entries += src
+                  }
                }
             }
          }
@@ -110,8 +118,9 @@ eclipse {
          }.collect { project ->
             project.configurations.eclipseLibs.each {
                def fileRef = fileReference(it)
+               
+               // TODO: Need to figure out source references; current downloadSoruces=false (see above)
                def lib = new org.gradle.plugins.ide.eclipse.model.Library(fileRef)
-               lib.exported = true
 
                if(!classpath.entries.contains(lib) && !archives.contains(fileRef.file)) {
                   classpath.entries += lib

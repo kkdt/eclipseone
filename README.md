@@ -8,7 +8,7 @@ Add an include to `eclipseone.gradle` to the **end** of your root project's buil
 
 ```java
 // make sure this goes at the end of your root project build.gradle
-include from : '/path/to/eclipseone.gradle'
+apply from : '/path/to/eclipseone.gradle'
 ```
 
 Then, execute `gradle cleanEclipse eclispe` at your root project.
