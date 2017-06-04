@@ -1,0 +1,33 @@
+/**
+ * Copyright (C) 2017 thinh ho
+ * This file is part of 'eclipseone' which is released under the MIT license.
+ * See LICENSE at the project root directory.
+ */
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'eclipse'
+
+group = 'kkdt.gradle.eclipseone'
+version = '0.1'
+
+repositories {
+    jcenter()
+}
+
+eclipse {
+   classpath {
+      downloadJavadoc = true
+      downloadSources = true
+   }
+}
+
+dependencies {
+   compile gradleApi()
+   compile localGroovy()
+   
+   // Use the awesome Spock testing and specification framework
+//   testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+//   testCompile 'junit:junit:4.12'
+}
+
