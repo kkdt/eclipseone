@@ -1,6 +1,4 @@
-> This project is not currently published to [Gradle Plugins Repository](https://plugins.gradle.org/) and will need to be cloned and installed locally to be used in another project.
-
-> Plugin built by [Gradle 3.3](https://services.gradle.org/distributions/gradle-3.3-all.zip)
+> [Gradle Plugin Repository](https://plugins.gradle.org/plugin/kkdt.gradle.eclipseone) also contains instructions on how to include this plugin.
 
 # eclipseone
 
@@ -37,5 +35,5 @@ This plugin looks for Java subprojects and will configure their sources and libr
 
 1. The root project needs the Java plugin: `apply plugin: 'java'`
 2. The root project needs the Eclipse plugin: `apply plugin: 'eclipse'`
-3. Subprojects that have the Java plugin should **not** include the Eclipse plugin
+3. Subprojects that have the Java plugin should **not** include the Eclipse plugin; otherwise, those subprojects will have Eclipse artifacts that are not used
 4. You will need to run `gradle cleanEclipse eclipse` again if configurations change (i.e. add a new `compile` configuration to a subproject)
