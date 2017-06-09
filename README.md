@@ -10,24 +10,24 @@ The Gradle Plugin for Eclipse loads each subproject as a separate project within
 
 ## Quick Start
 
-1. Clone the project and execute: `gradle clean install` to add it to your `mavenLocal` repository. (Gradle 3.3)
-2. In another project, the master Gradle build file should have the follow snippet:
+1. The master Gradle build file should have the follow snippet:
 ```
 buildscript {
-   repositories { 
-      mavenLocal()
-      mavenCentral()
+   repositories {
+      maven {
+         url "https://plugins.gradle.org/m2/"
+      }
    }
    dependencies {
-      classpath 'kkdt.gradle.eclipseone:eclipseone:0.1'
-   }
+    classpath "gradle.plugin.kkdt.gradle.eclipseone:eclipseone:0.2"
+  }
 }
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'kkdt.gradle.eclipseone'
 ```
-3. Execute the Eclipse plugin as normal: `gradle cleanEclipse eclipse`
+2. Execute the Eclipse plugin as normal: `gradle cleanEclipse eclipse`
 
 ## Overview
 
@@ -35,5 +35,5 @@ This plugin looks for Java subprojects and will configure their sources and libr
 
 1. The root project needs the Java plugin: `apply plugin: 'java'`
 2. The root project needs the Eclipse plugin: `apply plugin: 'eclipse'`
-3. Subprojects that have the Java plugin should **not** include the Eclipse plugin; otherwise, those subprojects will have Eclipse artifacts that are not used
+3. Subprojects that include the Eclipse plugin will not generate Eclipse artifacts (removed by this plugin)
 4. You will need to run `gradle cleanEclipse eclipse` again if configurations change (i.e. add a new `compile` configuration to a subproject)

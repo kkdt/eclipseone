@@ -10,14 +10,13 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.plugins.ide.eclipse.GenerateEclipseClasspath
+import org.gradle.plugins.ide.eclipse.GenerateEclipseProject
 import org.gradle.plugins.ide.eclipse.model.EclipseModel
-
-import kkdt.gradle.eclipseone.GenerateClasspathBootstrap
 
 /**
  * <p>
@@ -71,6 +70,21 @@ class EclipseOnePlugin implements Plugin<Project> {
                   // task logger
                   def logger = task.logger;
                   
+                  // subprojects with the eclipse plugin applied will have their
+                  // eclipse artifacts removed
+                  task.project.tasks.findByPath(p.path + ':eclipse')?.doLast {
+                     if(p.file('.classpath').exists()) {
+                        p.file('.classpath').delete();
+                     }
+                     if(p.file('.project').exists()) {
+                        p.file('.project').delete();
+                     }
+                     if(p.file('.settings').exists()) {
+                        p.file('.settings').deleteDir();
+                     }
+                  }
+                  
+                  // bootstrapping the root project Eclipse Model
                   task.project.plugins.withType(JavaBasePlugin.class, new Action<JavaBasePlugin>() {
                      @Override
                      public void execute(JavaBasePlugin javaBasePlugin) {

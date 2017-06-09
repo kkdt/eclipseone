@@ -22,7 +22,7 @@ apply plugin: 'maven'
 apply plugin: 'eclipse'
 
 group = 'kkdt.gradle.eclipseone'
-version = '0.1'
+version = '0.2'
 
 repositories {
     jcenter()
@@ -43,7 +43,7 @@ dependencies {
 }
 
 pluginBundle {
-   website = 'https://github.com/kkdt/eclipseone'
+   website = 'https://github.com/kkdt'
    vcsUrl = 'https://github.com/kkdt/eclipseone'
    description = 'Single-project Eclipse view for a multi-project build'
    tags = ['eclipse','java']
