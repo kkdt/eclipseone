@@ -1,4 +1,4 @@
-> [Gradle Plugin Repository](https://plugins.gradle.org/plugin/kkdt.gradle.eclipseone) also contains instructions on how to include this plugin.
+> This plugin is available on the [Gradle Plugin Repository](https://plugins.gradle.org/plugin/kkdt.gradle.eclipseone).
 
 # eclipseone
 
@@ -19,7 +19,7 @@ buildscript {
       }
    }
    dependencies {
-    classpath "gradle.plugin.kkdt.gradle.eclipseone:eclipseone:0.2"
+    classpath "gradle.plugin.kkdt.gradle.eclipseone:eclipseone:0.3"
   }
 }
 

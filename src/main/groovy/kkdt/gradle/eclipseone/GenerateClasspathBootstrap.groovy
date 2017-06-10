@@ -9,18 +9,15 @@ import org.gradle.api.DefaultTask;
 
 /**
  * <p>
- * The Eclipse bootstrap class. Note: This was written in Java to leverage 
- * auto-completion when first exploring the {@code gradleApi}.
+ * The Eclipse bootstrap class.
  * </p>
  * 
  * @author thinh ho
  *
  */
-public class GenerateClasspathBootstrap extends DefaultTask {
-   private static final String description = "Bootstrap project with the root project's Eclipse plugin";
-   
+class GenerateClasspathBootstrap extends DefaultTask {
    public GenerateClasspathBootstrap() {
       super();
-      setDescription(description);
+      setDescription("Bootstrap project with the root project's Eclipse plugin");
    }
 }
