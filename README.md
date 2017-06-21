@@ -6,7 +6,7 @@ This project uses the [Eclipse Plugin](https://docs.gradle.org/current/userguide
 
 The Gradle Plugin for Eclipse loads each subproject as a separate project within the IDE. With this Gradle plugin, a multiple-project view within Eclipse will look like the screen below (similar to IDEA's Gradle Plugin). In addition, you can keep your IDE lightweight and not have to install the Gradle Plugin.
 
-![alt text](https://github.com/kkdt/gradle-java-multiprojects/blob/master/img/screenshot2.png "Eclipse single-project import")
+![alt text](img/screenshot2.png "Eclipse single-project import")
 
 ## Quick Start
 
@@ -35,5 +35,13 @@ This plugin looks for Java subprojects and will configure their sources and libr
 
 1. The root project needs the Java plugin: `apply plugin: 'java'`
 2. The root project needs the Eclipse plugin: `apply plugin: 'eclipse'`
-3. Subprojects that include the Eclipse plugin will not generate Eclipse artifacts (removed by this plugin)
+3. Subprojects that include the Eclipse plugin will not include Eclipse artifacts (removed by this plugin)
 4. You will need to run `gradle cleanEclipse eclipse` again if configurations change (i.e. add a new `compile` configuration to a subproject)
+
+## Building
+
+Publish to a Maven-style file repository.
+
+```
+gradle publish
+```

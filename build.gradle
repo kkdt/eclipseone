@@ -19,6 +19,7 @@ apply plugin: "com.gradle.plugin-publish"
 apply plugin: 'groovy'
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'eclipse'
 
 group = 'kkdt.gradle.eclipseone'
@@ -51,6 +52,26 @@ pluginBundle {
        id = 'kkdt.gradle.eclipseone'
        displayName = 'Eclipse-One Plugin'
      }
+   }
+}
+
+publishing {
+   publications {
+       myPublication(MavenPublication) {
+           // publish jar archive
+           from components.java
+           // include publish README.md
+           artifact ('README.md') {
+               classifier = 'README'
+               extension  = 'md'
+           }
+       }
+   }
+   // publish artifacts to local directory
+   repositories {
+      maven {
+         url "file:/" + buildDir.path + "/artifacts"
+      }
    }
 }
 
