@@ -56,14 +56,21 @@ class EclipseOnePlugin implements Plugin<Project> {
       lifecycleTask = project.task(ECLIPSEONE_TASK);
       lifecycleTask.description = 'Create eclipse artifacts for only the root project';
       eclipseModel = project.extensions.findByName('eclipse');
-      configurePlugin();
+      EclipseOneModel model = project.extensions.create('eclipseone', EclipseOneModel.class);
+      
+      project.afterEvaluate {
+         configurePlugin(model);
+      }
    }
    
-   def configurePlugin() {
+   def configurePlugin(EclipseOneModel model) {
       def eclipse = project.tasks.findByName("eclipse");
       if(eclipseModel != null && eclipse != null) {
          eclipseModel.classpath.downloadSources = true
-         project.subprojects.each { p ->
+         project.subprojects.findResults {
+            // only include projects that are not excluded, or all subprojects if model does not specify excludes
+            return (model.excludedProjects == null || !model.excludedProjects.contains(it.name) ? it : null);
+         }.each { p ->
             Task t = addTask(p, boostrapTask, GenerateClasspathBootstrap.class, new Action<GenerateClasspathBootstrap>() {
                @Override
                public void execute(GenerateClasspathBootstrap task) {
@@ -134,6 +141,14 @@ class EclipseOnePlugin implements Plugin<Project> {
                                  return (it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency) && !project.file(it.path).exists();
                               }.each {
                                  classpath.entries.remove(it)
+                              }
+                              
+                              classpath.entries.findAll {
+                                 return (it.kind == 'con' && it.path.startsWith(EclipseOneModel.defaultJreContainerPath));
+                              }.each {
+                                 if(model.jreContainerPath != null) {
+                                    it.path = model.jreContainerPath;
+                                 }
                               }
                            }
                         }
