@@ -5,6 +5,10 @@
  */
 package kkdt.gradle.eclipseone
 
+import java.lang.invoke.LambdaForm.Name
+import java.nio.file.Path
+import java.util.stream.Collectors
+
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -14,6 +18,7 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.model.Each
 import org.gradle.plugins.ide.eclipse.GenerateEclipseClasspath
 import org.gradle.plugins.ide.eclipse.GenerateEclipseProject
 import org.gradle.plugins.ide.eclipse.model.EclipseModel
@@ -49,10 +54,15 @@ class EclipseOnePlugin implements Plugin<Project> {
     * The single eclipse model.
     */
    EclipseModel eclipseModel;
+   /**
+    * Plugin logger pulled from root project.
+    */
+   def logger;
    
    @Override
    void apply(Project project) {
       this.project = project;
+      this.logger = project.logger;
       lifecycleTask = project.task(ECLIPSEONE_TASK);
       lifecycleTask.description = 'Create eclipse artifacts for only the root project';
       eclipseModel = project.extensions.findByName('eclipse');
@@ -67,16 +77,25 @@ class EclipseOnePlugin implements Plugin<Project> {
       def eclipse = project.tasks.findByName("eclipse");
       if(eclipseModel != null && eclipse != null) {
          eclipseModel.classpath.downloadSources = true
+         
          project.subprojects.findResults {
             // only include projects that are not excluded, or all subprojects if model does not specify excludes
-            return (model.excludedProjects == null || !model.excludedProjects.contains(it.name) ? it : null);
-         }.each { p ->
+            return (model.excludedJavaProjects != null && model.excludedJavaProjects.contains(it.name) && it.plugins.hasPlugin('java') ? it : null);
+         }.each {
+            ExcludedJavaProject excluded = new ExcludedJavaProject();
+            excluded.name = it.name;
+            excluded.jars = model.ignoreExcludedJavaProjectsArtifacts ? [] : it.jar.outputs.files.getFiles();
+            excluded.sourceSets = it.sourceSets.findAll { return it; }.allSource.srcDirs.flatten();
+            model.additionalJars[it.name] = excluded;
+            
+            logger.info('(eclipseone) additionalJars: ' + model.additionalJars);
+            logger.info('(eclipseone) sourceSets: ' + it.sourceSets.findAll { return it; }.allSource.srcDirs.flatten());
+         }
+         
+         project.subprojects.each { p ->
             Task t = addTask(p, boostrapTask, GenerateClasspathBootstrap.class, new Action<GenerateClasspathBootstrap>() {
                @Override
                public void execute(GenerateClasspathBootstrap task) {
-                  // task logger
-                  def logger = task.logger;
-                  
                   // subprojects with the eclipse plugin applied will have their
                   // eclipse artifacts removed
                   task.project.tasks.findByPath(p.path + ':eclipse')?.doLast {
@@ -128,32 +147,56 @@ class EclipseOnePlugin implements Plugin<Project> {
                               logger.debug('(eclipseone) source: ' + it);
                            }
                         }
-                        
-                        project.eclipse.classpath.file {
-                           withXml { xml ->
-                              if(logger.debugEnabled) {
-                                 logger.debug('(eclipseone) ' + xml.class.name + ': ' + xml);
-                              }
-                           }
-                           whenMerged { classpath ->
-                              // no need to allow the eclipse plugin to link subprojects
-                              classpath.entries.findAll {
-                                 return (it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency) && !project.file(it.path).exists();
-                              }.each {
-                                 classpath.entries.remove(it)
-                              }
-                              
-                              classpath.entries.findAll {
-                                 return (it.kind == 'con' && it.path.startsWith(EclipseOneModel.defaultJreContainerPath));
-                              }.each {
-                                 if(model.jreContainerPath != null) {
-                                    it.path = model.jreContainerPath;
-                                 }
-                              }
-                           }
-                        }
                      }
                   });
+                  
+                  project.eclipse.classpath.file {
+                     withXml { xml ->
+                        if(logger.debugEnabled) {
+                           logger.debug('(eclipseone) ' + xml.class.name + ': ' + xml);
+                        }
+                     }
+                     whenMerged { classpath ->
+                        // no need to allow the eclipse plugin to link subprojects
+                        classpath.entries.findAll {
+                           return (it instanceof org.gradle.plugins.ide.eclipse.model.ProjectDependency) && !project.file(it.path).exists();
+                        }.each {
+                           classpath.entries.remove(it)
+                        }
+                        
+                        // override the jreContainer value
+                        classpath.entries.findAll {
+                           return (it.kind == 'con' && it.path.startsWith(EclipseOneModel.defaultJreContainerPath));
+                        }.each {
+                           if(model.jreContainerPath != null) {
+                              it.path = model.jreContainerPath;
+                           }
+                        }
+                        
+                        if(model.additionalJars.containsKey(p.name)) {
+                           def xproj = model.additionalJars[p.name];
+                           
+                           // remove excluded project source
+                           classpath.entries.findAll {
+                              return it instanceof org.gradle.plugins.ide.eclipse.model.SourceFolder
+                           }.each {
+                              if(xproj.sourceSets.contains(it.dir)) {
+                                 logger.info('(eclipseone) Removing source set ' + it)
+                                 classpath.entries.remove(it);
+                              }
+                           }
+                           
+                           // include any jar artifacts that were part of excluded Java projects
+                           def factory = new org.gradle.plugins.ide.eclipse.model.internal.FileReferenceFactory();
+                           xproj.jars.each { f ->
+                              classpath.entries += new org.gradle.plugins.ide.eclipse.model.Library(factory.fromPath(f.path));
+                              logger.info('(eclipseone) Including library ' + f + ' ' + p);
+                           }
+                        } else {
+                           logger.info('(eclipseone) Including ' + p);
+                        }
+                     }
+                  }
                }
             });
             eclipse.dependsOn(t);

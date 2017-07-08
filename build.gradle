@@ -23,7 +23,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'eclipse'
 
 group = 'kkdt.gradle.eclipseone'
-version = '0.4'
+version = '0.5'
 
 repositories {
     jcenter()

@@ -27,5 +27,19 @@ class EclipseOneModel {
     * Java project(s) that are not need when building the classpath.
     * </p>
     */
-   String[] excludedProjects;
+   String[] excludedJavaProjects;
+   /**
+    * <p>
+    * Excluded Java projects will have their jars included in the classpath, unless
+    * <code>ignoreExcludedJavaProjectsArtifacts</code> is set to true.
+    * </p>
+    */
+   def additionalJars = [:]
+   /**
+    * <p>
+    * By default, all excluded Java projects will have their artifacts (jar) 
+    * included in the classpath.
+    * </p>
+    */
+   boolean ignoreExcludedJavaProjectsArtifacts = false;
 }

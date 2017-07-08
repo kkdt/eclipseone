@@ -19,7 +19,7 @@ buildscript {
       }
    }
    dependencies {
-    classpath "gradle.plugin.kkdt.gradle.eclipseone:eclipseone:0.4"
+    classpath "gradle.plugin.kkdt.gradle.eclipseone:eclipseone:0.5"
   }
 }
 
@@ -44,8 +44,9 @@ This plugin looks for Java subprojects and will configure their sources and libr
 
 ```
 eclipseone {
-   excludedProjects = [] // Java projects to exclude from classpath
    jreContainerPath = null // i.e. 'org.eclipse.jdt.launching.JRE_CONTAINER'
+   excludedJavaProjects = [] // Java projects to exclude from classpath
+   ignoreExcludedJavaProjectsArtifacts = false // set to true to also ignore any jar artifacts from excluded java projects
 }
 ```
 
@@ -73,7 +74,7 @@ Publish to a Maven-style file repository.
 gradle publish
 ```
 
-Publish to local Maven.
+Publish to local Maven (classpath dependencies would just be `classpath "gradle.plugin.kkdt.gradle.eclipseone:eclipseone:0.5"`).
 
 ```
 gradle publishToMavenLocal
