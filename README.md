@@ -1,4 +1,4 @@
-> This plugin is available on the [Gradle Plugin Repository](https://plugins.gradle.org/plugin/kkdt.gradle.eclipseone).
+> This plugin is also available on the [Gradle Plugin Repository](https://plugins.gradle.org/plugin/kkdt.gradle.eclipseone).
 
 # eclipseone
 
@@ -15,12 +15,12 @@ The Gradle Plugin for Eclipse loads each subproject as a separate project within
 buildscript {
    repositories {
       maven {
-         url "https://plugins.gradle.org/m2/"
+         url 'https://github.com/kkdt/mavenrepo/raw/master'
       }
    }
    dependencies {
-    classpath "gradle.plugin.kkdt.gradle.eclipseone:eclipseone:0.5"
-  }
+      classpath "kkdt.gradle.eclipseone:eclipseone:0.5"
+   }
 }
 
 apply plugin: 'java'

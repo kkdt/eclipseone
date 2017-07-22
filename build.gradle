@@ -36,6 +36,10 @@ eclipse {
    }
 }
 
+ext {
+   localrepo = project.hasProperty('localrepo') ? localrepo : buildDir.path + "/artifacts"
+}
+
 dependencies {
    compile gradleApi()
    compile localGroovy()
@@ -70,7 +74,7 @@ publishing {
    // publish artifacts to local directory
    repositories {
       maven {
-         url "file:/" + buildDir.path + "/artifacts"
+         url file(localrepo)
       }
    }
 }
